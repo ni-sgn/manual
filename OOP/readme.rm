@@ -263,6 +263,8 @@ and unique label generated for every method.
 
 ###Dynamic Dispatch###
 https://en.wikipedia.org/wiki/Dynamic_dispatch
+https://en.wikipedia.org/wiki/Virtual_method_table
+
 *Dispatch as sending a call to a specifig method.
 
 In C++ it is implemented using v-tables.
@@ -275,3 +277,9 @@ method name is just offset in the table.
 By fetching the address from the v-table
 we can call a method on that address which is 
 specific for the class of the object.
+
+Language that have duck typing
+use hash table instead of virtual tables...
+More research is needed for this...!!!!!!
+https://en.wikipedia.org/wiki/Duck_typing
+https://en.wikipedia.org/wiki/Hash_table
