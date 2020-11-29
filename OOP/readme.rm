@@ -227,3 +227,51 @@ are much faster than abstract functions.
 But aren't interfaces classes as well???
 If not how are we able to make inherited classes
 to it???? More research needed.....
+
+###MORE ABOUT POLYMORPHISM###
+
+Dynamic dispatch plays a big role in polymorphism.
+Dynamic dispatch is type of a Dynamic name binding.
+What is it?
+
+In high-level languages programmer doesn't manipulate
+register and memory(usually), he works with names of things.
+When we want to address, or reference objects, we access them
+by the names that we defined for them.
+Machine doesn't have concept of names.
+No names in machine language.
+It knows addresses, and offsets(using arithmetic).
+
+To my understanding this is how it goes:
+Static binding(the function referenced can not change runtime)
+1)names of local variables are turned into offsets in a stack frame.
+2)names of normal functions and global or static variables are pushed 
+into a static memory and in assembly labels are added to them 
+which marks those addresses.
+
+
+When we are accesing a virtual function from
+a base class pointer, one name can be interpreted
+into many different functions, so which label(address in memory)
+should it be bound to?
+"The actual method referenced is not known until runtime."
+
+Simple name-mingling won't do it either,
+which can be used for method overloading probably,
+because names can be mangled using number of parameters,
+and unique label generated for every method.
+
+###Dynamic Dispatch###
+https://en.wikipedia.org/wiki/Dynamic_dispatch
+*Dispatch as sending a call to a specifig method.
+
+In C++ it is implemented using v-tables.
+Each class has it's own v-table,
+it's shared between all the object for that class.
+
+v-table contains all the addresses of base's 
+virtual functions. 
+method name is just offset in the table.
+By fetching the address from the v-table
+we can call a method on that address which is 
+specific for the class of the object.
