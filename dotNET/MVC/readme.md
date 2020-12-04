@@ -370,5 +370,5 @@ the corresponding class members are populated.
 This works well because we created a strongly typed view 
 that's fit for a certain model and used tag-helpers
 to generate the correct html tags.   
-
+https://stackoverflow.com/questions/558304/can-anyone-explain-ienumerable-and-ienumerator-to-me
 
