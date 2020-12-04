@@ -372,3 +372,127 @@ that's fit for a certain model and used tag-helpers
 to generate the correct html tags.   
 
 
+Continueing with Models...
+
+For some reason we are adding new model,
+/Models/Repository.cs/, which stores data 
+about responses...
+I guess just to make an example???
+Why couldnt make this collection in the previous model??
+
+Now, inside /Models/Repository.cs/:
+
+using System.Collections.Generic;
+
+namepsace PartyInvites.Models{
+public static class Repository	{
+	private static List<GuestResponse> responses = new List<GuestResponse>();
+	public static IEnumerable<GuestResponse> Responses {
+		get {
+			return responses;
+		}
+	}
+
+	public static void AddResponse(GuestResponse response)
+	{
+		responses.Add(reponse);
+	}
+}
+}
+
+Lets analyse C# thingies.
+
+List<T> is just a stronlgy typed list of objects.
+It has a generic type T, which basically means that
+we can create List of any type of object.
+These objects can be accessed by index.
+List is muttable and Provides methods for
+search, sort, and manipulate list...
+
+About statics... I think that,
+static methods and variables are 
+added to the static memory, and class that
+wraps them just becomes name mangling thingie...
+They are accessable from 'whole program'?
+And they don't need to be created as objects and
+pushed into the stack...
+
+Does static class mean that its every member must be
+static too???
+Yes, it does...
+
+
+Weird part:
+	public static IEnumerable<GuestResponse> Responses{
+		get{	return responses; }
+	}
+
+This looks like a Property...
+With type of IEnumerable<GuestResponse>, but it 
+returns responses, which is just a List, 
+List of GuestResponse, is it turned into IEnumerable?
+And what does that mean?
+
+Type Parameters...
+
+Thing with Generic Programming in C# is that
+we can pass a parameter, which is a type parameter.
+Which means that we are passing a Type as a parameter(argument)
+which in a class or a method was described and looks like a
+variable.
+Yes..., its a variable, which is substituted at runtime
+by the type which is recongnized by the compiler...
+://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/generics/generics-in-the-run-time
+This needs more research and explanation in a different place...
+
+	public static IEnumerable<GuestResponse> Responses{
+		get{
+			return responses;
+		   }
+	}
+"Enumerables standardize looping over collections, and enables 
+the use of LINQ query syntax, as well as other useful extension
+methods like List.Where() or List.Select()."
+Its basically enables us to write custom logic for
+iterating throught the collection...
+
+And libraries are working with this standardized Interfaces,
+using their methods, because it gives the flexibility of
+having different logic but having same way of calling them.
+
+REMEMBER, MEMBERS OF INTERFACES MUST GET OVERRIDEN.
+It feels like Mathematical Induction...
+
+foreach (Int element in list)
+{
+	//code
+}
+
+is translated to:
+
+IEnumerator enumerator = list.GetEnumerator();
+while(list.MoveNext())
+{
+	element = (Int)enumerator.Current
+	//code
+}
+
+IEnumerable interface returns a reference to the IEnumerator
+which has 
+MoveNext() //+1 in Peano's, rule to climb the ladder 
+Current    //reference to the current object
+
+With this we are able to traverse any? collection...
+
+In our case, we don't have an access to the
+IEnumerable interface of the List we've created,
+so becase IEnumerable is a base for List,
+we can return List as IEnumerable interface 
+and this interface will be reference to
+the List object but we have interface which we 
+will be able to use for traversing...
+
+
+Because these methods are static we can reach them from 
+controller without creating object, and store the data:
+
