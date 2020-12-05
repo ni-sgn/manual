@@ -486,13 +486,205 @@ With this we are able to traverse any? collection...
 
 In our case, we don't have an access to the
 IEnumerable interface of the List we've created,
-so becase IEnumerable is a base for List,
+so because IEnumerable is a base for List,
+because that's how List implements traversability,
 we can return List as IEnumerable interface 
-and this interface will be reference to
-the List object but we have interface which we 
+and this interface will be a reference to
+the List object adn  we will have an interface which we 
 will be able to use for traversing...
+
+This is a better way than having an array/list
+public and iterating over it.
+
+Also:
+var toPrint = input.Where((item) => item.Length > length);
+
+doesn't return a newly generate list into the toPrint,
+instead it returns reference to the IEnumerator, which
+has integrated logic inthe MoveNext()
+which we used in 'Where(...)'
+and will be used in the foreach...
+
+To return list:
+var toPrint = input.Where((item) => item.Length > length).toList();
+
+They Use Something Called *Deferred Execution*
+more research ... 
+https://www.tutorialsteacher.com/linq/linq-deferred-execution
 
 
 Because these methods are static we can reach them from 
 controller without creating object, and store the data:
+
+In the action method we defined:
+
+[HttpPost]
+public ViewResult RsvpForm(GuestResponse guestResponse)
+{
+	Repository.AddResponse(guestResponse);
+	return View("Thanks", guestResponse);
+}
+
+Therefore, we are sending back the View called
+"Thanks.cshtml", but before parsing that view
+we are sending GuestResponse to that view.
+
+Which will be accessed by the Razor Engine...
+But exchanging the data betweeen two different
+filetypes and it also looks dynamic, makes 
+me think that there is some standardized way of
+doing it?? maybe using JSON???
+
+in Thanks.cshtml:
+
+@model PartyInvites.Models.GuestResponse
+
+@{
+	Layout = null;
+}
+<!DOCTYPE html>
+...
+<h1> Thank you @Model.Name</h1>
+<p>
+@if (Model.WillAttend == true)
+{
+	@:great
+} else {
+	@:sad
+}
+</p>
+<p> Who's Coming?? <a asp-action="ListResponses">here</a>...</p>
+...
+...
+
+
+The object that we send using the View method
+is accessable using @Model.PropertyName,
+@model ...
+itself specifies the domain model,
+which makes this View strongly typed...
+
+
+We need a new action method called ListResponses:
+
+using System.Linq;
+...
+[HttpGet]
+public IActionResult ListResponses()
+{
+	return View(Repository.Responses.Where(x => x.WillAttend == true));
+}
+
+in Views/Home/ListResponses.cshtml:
+
+...
+@model IEnumerable<PartyInvites.Models.GuestResponse>
+<!DOCTYPE html>
+<html>
+...
+@foreach(PartyInvites.Models.GuestResponse item in Model)
+{
+<tr>
+	<td>@item.name</td>
+	<td>@item.phone</td>
+	...
+<tr>
+}
+...
+</html>
+
+Usin the view method, the IEnumerable is send to 
+the view, which is not quit new List, but more like
+the logic of how to traverse the List ???
+
+Then we make the corresponding view strongly typed,
+which in the and is till weird to me,
+looks like it tells the razor view engine that
+it's designed to work with this certain type of model...
+
+Because in the view we are getting
+Model as IEnumerabe interface with the type of 
+PartyInvites.Models.GuestResponse,
+We can use razor's foreach to traverse that model. 
+
+in the @foreach body we can use html tags and their
+attributes...
+
+
+*Validation...*
+
+First of all, we can get many types of junk
+from the client.  
+This becomes dangerous when the application is listening
+to these requests and expecting some data.
+We don't want to analyze, save, and use in any way 
+the data that we don't care about, especially when it can 
+be malicious. We must not collect garbage...
+Therefore we have to set a filter that filters out
+what we don't need, and define the type of
+data that we are interested in. 
+
+In MVC validation is added to the model,
+therefore it becomes the model validation.
+This way, instead of validating the input 
+from a certain user interface, we have valiadation
+on the model itself, and it's validated
+throughout the whole application.
+
+Attributes in C#
+://www.geeksforgeeks.org/c-sharp-dynamic-coding-attributes-in-depth/?ref=rp
+This topic needs a research on its own...
+Attributes are objects that somehow act at runtime...
+I don't quite understand C#'s Runtime environment...
+
+Basically attributes are metadata about classes
+or types or properties or fields...
+
+Attributes are used for validation...
+
+in GuestResponse.cs:
+
+using System.ComponentModel.DataAnnotations;
+...
+[Required(ErrorMessage = "Please enter your name")]
+public string Name {get; set;}
+
+[Required(ErroMessage = "Please enter your email address")]
+[RegularExpression(".+\\@.+\\..+",
+	ErrorMessage = "Please enter a valid email address")]
+public string Email { get; set; }
+...
+...
+
+Validation of these properties happens during
+model-binding...
+
+checking the reuslt of validation
+in Controllers/HomeController.cs:
+
+...
+[HttpPost]
+public ViewResult RsvpForm(GuestResponse guestResponse)
+{
+	if(ModelState.IsValid)
+	{
+		Repository.AddResponse(guestResponse);
+		return View("Thanks", guestResponse);
+	}
+	else {
+		//There was a validation error
+		return View();
+	}
+}
+...
+
+Because validation happens during the model binding,
+in the consequent ModelState we get validation for 
+current model that was being binded...
+
+This ModelState class is contained in the Controller 
+and contains information about conversion of
+HTTP request data into C#, (which basically what binding is?)
+
+
 
