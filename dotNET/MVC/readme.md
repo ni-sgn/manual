@@ -742,6 +742,7 @@ in Views/Home/Rsvp.cshtml:
 </head>
 ...
 
+
 MVC configuration assumes wwwroot folder for static files...
 
 This tiny project is done here... I'm skipping the bootstrap
@@ -749,5 +750,139 @@ styling parts, because it's not my concern yet.
 
 
 *Chapter 3?? MVC*
+*	Model     *
+Basically model in mvc represents
+what the application is 'all about'.
+Model is a domain of discourse, also 
+called the universe of discourse, universal set,
+or simply universe, of data and
+operation on it  for the application.
+
+Two types of Modles :
+View Models, which are models passed from controller to the view,
+Domain Models,which contain the data in a business domain. 
+
+----
+I have a parrot on my hand right now...
+He is so confused of what's going on ...
+----
+
+Data Transfer Object (DTO)
+https://en.wikipedia.org/wiki/Data_transfer_object
+
+Programs are become running processes 
+in OS on the CPU, when one program(browser)
+gets a data from the server program(apache?)
+this data exchange actually happens between processes.
+But how is this data exchanged??
+
+When this processes are located on differrent computers,
+this communication between processes is happening remotely,
+(e.g. web services). 
+I guess on client server model this exchange(call) is costly
+because it takes a round-trip.	 
+What Data Transfer Object does is that it encapsulates a bunch 
+of data that was transfered using many calls into an object
+which onlny needs one call.
+
+This type of objects are simple and have functionality only
+for storing, retrieving, serializing and deserializing its
+own data.
+
+Data Access Object (DAO)
+https://en.wikipedia.org/wiki/Data_access_object
+
+This is an abstract interface to some type of database
+that only reveals specific Data Operations without exposing
+details of the database
+
+Business Model
+Its just business model I guess,
+although why did they choose business, 
+it still weirds me out... 
+
+*Controllers*
+or What is displayd and when,
+
+Only thing that model cares is data,
+what kind of data do I need?
+How do I store that data? 
+How do I retrieve that data?
+What kind of operations on that data do I need?
+
+It doesn't take into consideration how the application
+is supposed to be interacted by users.
+It just represents what application supports and can be
+accessed to be displayed.
+
+But what is displayed and when?
+That's what controllers are designed for...
+They look at  client's HTTP requests and send them
+appropriate data through deliberately defined action methods.
+
+It also communicates with the model through the interfaces,
+so that data model gets updated whenever needed... 
+
+Client wants to view the resources, so he must send
+some requst for that resource.
+But our application allows client to view the data,
+which is relevant to our application... 
+Therefore there must be resource locators embedded 
+inside a view which can be triggered by the user... 
+
+These resource locators(URL), must be somehow mapped
+to the actual resources, simplest way of doing it 
+just send the full location of a resource on the server???
+Doing this with URI-s(Uniform Resource Identifier),
+which is a string that provides a unique address 
+to the resource...
+
+All URL-s are URI-s, not all URI-s are URL-s.
+https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+
+Client can also send additional data/parameters using
+URL to to the server... 
+
+C# MVC has Routing engine, which sets the mapping 
+rules from URL-s to Resources,
+then parses the incoming URL-s and maps them to resources
+using following these rules... 
+
+Now, because resources in MVC web apps are governed by
+actions in Controllers, URL-s are usually mappped to 
+actions in controllers. 
+
+In Single Page Applications, Routes are just certain
+state of Application...
+Basically URL-s are mapped to the certain states of the
+application...
+
+But why is it called routing??
+Where is this route leading us???
+
+Routes between two different pages or 'states' in
+case of SPA-s.
+
+
+*Views*
+or How is it displayed 
+
+server can send data in many different formats,
+but we want it to be presentable, 
+comprehensive view, therefore 
+sending the html which browser understands, 
+can be used to display and present the requested data.
+
+This html results also contain embedded interactive parts inside
+of them and basically dynamic website is formed like this.
+
+For the separation of View to be possible, we must be able 
+to write logic for generating this html.
+
+C# has razor view engine, which has similar syntax to C#
+and enables us to implement logic inside .cshtml files,
+which are then parsed and final html is generated. 
+
+
 
 
