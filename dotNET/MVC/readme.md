@@ -687,4 +687,67 @@ and contains information about conversion of
 HTTP request data into C#, (which basically what binding is?)
 
 
+Razor engine has access to th validation errors associated with 
+the requst,
+Requst->Starts Binding->Validation->Binding is Interrupted
+->Validation results written in ModelState and ValidationSummary
+
+Razor has access to the enumeration ValidationSummary,
+which contains error messages of validations,
+I don't understand the intermediary space between
+Controllers and Views, how is data exchanged...
+
+in Views/Home/RsvpForm.cshtml:
+...
+...
+<form asp-action="RsvpForm" method="post">
+<div asp-validation-summary="All"></div>
+...
+...
+</div>
+</form>
+...
+...
+
+with asp-validation-summary="All" tag-helper attribute we are 
+accessing to all validation error messages. 
+
+when using 'asp-for' to associate model property to a
+HTML element, if validation for that property is failed
+razor generated different attribute:
+
+<input type="text" class="input-validation-error"
+data-val="true" data-val-required="Please enter...:"
+id="Phone" name="Phone" value=""/> 
+
+The difference is this class="input-validation-error"
+which can be used to be accessed by js or to add 
+styling with CSS 
+
+Another Convention in MVC:
+Static components delivered to the clients
+is placed into the wwwroot folder...
+
+in wwwroot/css/styles.cc:
+.field-validation-error { color: #600; }
+.input-validation-error { border: 1px solid #f00; background-color:#fee;}
+...
+.validation-summary-errors { font-weight: bold; color: #f00; }
+
+in Views/Home/Rsvp.cshtml:
+...
+<head>
+	<link rel="stylesheet" href="/css/styles.css" />
+...
+</head>
+...
+
+MVC configuration assumes wwwroot folder for static files...
+
+This tiny project is done here... I'm skipping the bootstrap
+styling parts, because it's not my concern yet.
+
+
+*Chapter 3?? MVC*
+
 
