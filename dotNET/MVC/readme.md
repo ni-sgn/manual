@@ -749,7 +749,8 @@ This tiny project is done here... I'm skipping the bootstrap
 styling parts, because it's not my concern yet.
 
 
-*Chapter 3?? MVC*
+*Chapter 3: MVC pattern*
+
 *	Model     *
 Basically model in mvc represents
 what the application is 'all about'.
@@ -884,5 +885,400 @@ and enables us to implement logic inside .cshtml files,
 which are then parsed and final html is generated. 
 
 
+*Data Access Layers(DAL)*
 
+Simplified access to data stored in persistent
+storage of some kind, such as an entity-relational
+database.
+
+*Business Logic Layer*
+
+These is created separately too, 
+even though we have Model in mvc
+application... ??? why thought???
+
+*Chapter 4: Language Features*
+
+Project: LanguageFeatures
+
+Models/Product.cs:
+
+namespace LanguageFeatures.Models
+{
+	public class Product 
+	{
+		public string Name {get;set;}
+		public decimal? Prince {get;set;}
+	
+		public static Product[] GetProducts()
+		{
+			Product kayak = new Product
+			{
+				Name = "Kayak",
+				Price = 275M
+			};
+			Product lifejacket = new Product
+			{
+				Name = "Lifejacket",
+				Price = 48.95M
+			};
+			
+			return new Product[] { kayak,
+						lifejacket,
+						null};
+		}
+	}
+}
+ 
+Lookint at this code...
+First of all it is wrapped inside of a namespace,
+isn't URI already creating this LanguageFeatures.Modles namespace itself??
+Probably it doesn't, and it is generated according to the relative location
+to the project.
+But how can this namespace imported?
+I haven't seen something like "using namespace std;"
+namespaces are for name manglings, it can't be that I import namespace like
+
+using LanguageFeatures.Models;
+
+because this import a classes inside of files inside of 
+LanguageFeatures.Models...
+
+when is the namespace opened??
+
+
+decimal is a type used for financial calculation 
+for no roundoff errors... 
+decimal? probably can take null as a value too.
+decima? is probably a derived class from decimal and
+has additional features.
+
+About static members in the class...
+I still think that it does nothing except the name binding,
+which is the simplest form of encapsulation...
+
+Question is, is the static member created before 
+the object creation of that type of class, or after the first
+object is created...
+
+Probably after the first object is created,
+if its a static class, then we can't create objects,
+and its every member is static therefore they are
+allocated in the memory before the object creation...
+
+Yes, using allocation in memory is a better word than creation
+I like it more...
+
+We have to call GetProducts() for Products object 
+to get List of statically defined objects...
+
+Also:
+
+Product kayak = new Product {
+		Name = "Kayak",
+		Price = 275M
+		};
+
+creating kayak object with the type of
+Product. 
+This happens without a constructor...
+
+*in Controllers/HomeController.cs:
+
+using Microsoft.AspNetCore.Mvc;
+
+namespace LanguageFeatures.Controllers
+{
+	public class HomeController : Controller {
+	
+		public ViewResult Index()
+		{
+			return View(new string[] {"C#", 
+						  "Language",
+						  "Features"});
+		}
+	}
+}
+
+Mvc features are inside Microsoft.AspNetCore.Mvc 
+namespace?
+Is it a namespace or a class, or what kind of location is this???
+More research needed for this?? how the different files and
+classes are imported.
+
+One more interesting point,
+we are sending the array of strings to the view
+but in Views/Home/Index.cshtml:
+
+@model IEnumerable<string>
+@{ Layout = null; }
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport"	content="width=device-width" />
+	<title> Language Features </title>
+</head>
+<body>
+	<ul>
+		@foreach (string s in Model)
+		{
+			<li>@s</li>
+		}
+	</ul>
+</body>
+</html>
+</html>
+
+In view the @model is IEnumerable<string>
+
+Which probably makes sense because IEnumerable is 
+base class for collections...
+
+*Null Conditional Operator*
+Makes detecting the null values more elegant 
+
+example in Controllers/HomeController.cs:
+
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using LanguageFeatures.Models;
+
+namespace LanguageFeatures.Controllers
+{
+	public class HomeController : Controller 
+	{
+		public ViewResult Index()
+		{
+			List<string> results = new List<string>(); 
+			
+			foreach ( Product p in Product.GetProduct())
+			{
+				// '?' is a null conditional operator
+				// if p == null then name = null
+				// else	if p != null name = p.name
+				string name = p?.name;
+				decimal? price = p?.price;
+				
+				//string.Format is a method  
+				//it replaces string wholes with 
+				//arguments according to their
+				//ordinal numbers
+				results.Add(string.Format("Name {0}, Price {1}", name, price);
+			}
+			View(results);
+		}
+	}
+}
+
+
+Chaining Null Conditional Operators
+In Models/Product.cs:
+
+namespace LanguageFeaturs.Models
+{
+	public class Product
+	{
+		public string Name { get; set; }
+		public decimal? Price { get; set; }
+		
+		//This creates a nested object
+		public Product  Related { get; set; }
+		
+		public static Product[] GetProduct()
+	 	{
+			// This syntax applies to Lists too?
+			Product kayak =	new Product 
+			{ Name = "Kayak", Price = 65M }; 	
+			Product lifejacket = new Product
+			{ Name = "Lifejacket", Price = 13.21M };
+
+		        //calling GetProduct() creates 2 objects
+			//we set Related for only 1 of them	
+			//therefore for second its null
+			kayak.Related = lifejacket;
+
+			return new {kayak, lifejacket, null};
+		}
+	}
+}
+
+
+in Controllers/HomeController.cs:
+
+using Microsoft.AspNetCore.Mvc;
+using System.Collection.Generic;
+using LanguageFeatures.Models;
+
+namespace LanguageFeatures.Controllers
+{
+	public class HomeController : Controller 
+	{
+		public ViewResult Index()
+		{
+			List<string> results = new List<string>();
+			
+			foreach (Product p in Product.GetProducts())
+			{
+				//just making sure that obj p
+				//is not null
+				string name = p?.Name;
+				decimal? price = p?.Price;
+				
+				//we can chain null conditionals 
+				//making sure that p != null &&
+				//p.Related != null 
+				string relatedName = p?.Related?.Name;
+	
+				results.Add(string.Format("Name: {0},
+							   Price: {1},
+						    relatedName: {2},"
+						    name,
+						    price,
+						    relatedName);
+
+			}
+			
+			return	View(results);
+		}
+	}
+}
+
+*Null Coalescing Operator ??*
+in Controllers/HomeController.cs:
+
+
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using LanguageFeatures.Models;
+
+namespace LanguageFeatures.Controllers
+{
+	public class HomeController : Controller
+	{
+		public ViewResult Index()
+		{
+			List<string> results = new List<string>();
+			
+			foreach( Product p in Product.GetProducts())
+			{
+				// if p == null then name = "<No Name"
+				// else name = p.Name
+				string name = p?.Name ?? 0; 
+				decimal? price = p?.Price ?? <No P>";
+				
+				string relName = p?.Related?.Name ?? "None";
+				results.Add(string.Format("Name: {0},
+							  Price: {1},
+							Related: {2}",
+							name,price,
+							relatedName));
+			}
+			return 	View(results);
+		}
+	}
+}
+
+
+*Automatically Implemented Properties*
+in Controllers/HomeController.cs:
+
+
+public class Product
+{
+	public string Name { get; set; }
+	public decima? Price { get; set; }
+	public Product Related { get; set; }
+...
+}
+...
+
+These properties get implemented automatically:
+
+...
+public string Name{
+	get { return name;}
+	set { name = value;}
+}	
+...
+
+In actuality properties turn into:
+
+private string name;
+public string get_name() { return name; }
+pubic  void set_name(string value) { name = value; }
+
+
+*Auto-Implemented Property Initializers*
+in Controllers/HomeController.cs:
+
+...
+// use setter to initialize value 
+// this can be changed in constructor 
+public string Category { get; set; } = "Watersports";
+...
+
+in GetProducts():
+...
+//This is another way for constructor
+//then???
+Product kayak = new  Product
+{
+...
+Category = "water splash";
+}
+...
+
+This is espacially useful when
+we want to set an initial value
+for read-only auto-implemented properties
+
+...
+//I have no setter
+bool InStock { get;} = true;
+...
+
+Value of get-only or read-only 
+property can not be changed... but
+the initial value can be changed
+during creation using Constructor
+
+...
+public class Product()
+{
+	Product(bool stock)
+	{
+		InStock = stock;
+	}
+	public bool InStock { get; set;} = true;
+
+	public Product[] GetProducts()
+	{
+		Product kayak = new Product(false)
+		{
+			...
+		}			
+		
+		return new Product[] { ..., kayak, null };
+
+	}
+}
+...
+
+*String Interpolation*
+Interpolation... Interpolation...
+It's just a better syntax for string formating... 
+
+in Controllers/HomeController.cs:
+...
+results.Add(@"Name: {name}, Price: {price:C2}");
+
+C# will locate references inside { } and replace them 
+with strings corresponding to their values...
+C2 means will format the values as a currency with two
+decimal digits... These little things about formatting
+needs more research... 
+
+
+***Object and Collection Initializers***
 
