@@ -1243,10 +1243,10 @@ for read-only auto-implemented properties
 bool InStock { get;} = true;
 ...
 
-Value of get-only or read-only 
-property can not be changed... but
-the initial value can be changed
-during creation using Constructor
+Value of get-only or read-only \ 
+property can not be changed... but \
+the initial value can be changed \
+during creation using Constructor \
 
 ...
 public class Product()
