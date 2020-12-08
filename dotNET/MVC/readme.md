@@ -1285,7 +1285,7 @@ decimal digits... These little things about formatting
 needs more research... 
 
 
-***Object and Collection Initializers***
+***Object and Collection Initializers*** __
 The answer to the good old question is here<br/> 
 Before, we called it "another way of writing<br/> 
 constructor" or something like that...
@@ -1301,4 +1301,5 @@ Product kayak = new Product
 	Category = "water craft",
 	Price = 274M
 };
+...
 ```
