@@ -24,13 +24,14 @@ to the client after the request,
 but returning HTML, CSS, JavaScript, makes sense, because
 browsers understand it and our data can be wrapped inside it
 and represented beautifully.
-
+```C#
 inside controller:
 
 public IActionResult Index()
 {
 	return View("MyView");
 }
+```
 
 View method is probably virtual method defined in 
 parent Controller class and we are 
@@ -50,10 +51,13 @@ same level probably...
 
 What can be passed to the client from controller?:
 primitive types:
+```C#
 public string Index(){ return "hello world"; }
-
-renderd view:
+```
+###renderd view:
+```C#
 public ViewResult() { return view("MyView");}
+```
 
 or
 
