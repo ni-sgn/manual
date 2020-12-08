@@ -54,7 +54,7 @@ primitive types:
 ```C#
 public string Index(){ return "hello world"; }
 ```
-###renderd view:
+### renderd view:
 ```C#
 public ViewResult() { return view("MyView");}
 ```
