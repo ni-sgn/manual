@@ -1303,3 +1303,14 @@ Product kayak = new Product
 };
 ...
 ```
+This is translated into:
+```C#
+...
+Product kayak = new Product();
+kayak.Name = "Kayak";
+kayak.Price = 232M;
+kayak.Category = "Water Polo";
+...
+```
+It's basically a syntax sugar to access<br/> 
+and initialize public member of an object<br/> 
