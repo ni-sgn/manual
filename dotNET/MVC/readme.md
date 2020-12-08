@@ -1286,4 +1286,19 @@ needs more research...
 
 
 ***Object and Collection Initializers***
+The answer to the good old question is here<br/> 
+Before, we called it "another way of writing<br/> 
+constructor" or something like that...
 
+<br/>
+Behold, we have a <b> Collection Initializers </b>
+in our hands <br/>
+
+```C#
+...
+Product kayak = new Product
+{	Name = "Kayak",
+	Category = "water craft",
+	Price = 274M
+};
+```
