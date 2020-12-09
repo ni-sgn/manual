@@ -1285,7 +1285,7 @@ decimal digits... These little things about formatting
 needs more research... 
 
 
-***Object and Collection Initializers*** __
+***Object and Collection Initializers***<br/> 
 The answer to the good old question is here<br/> 
 Before, we called it "another way of writing<br/> 
 constructor" or something like that...
@@ -1314,3 +1314,258 @@ kayak.Category = "Water Polo";
 ```
 It's basically a syntax sugar to access<br/> 
 and initialize public member of an object<br/> 
+
+Same thing can be applied to Collections.<br/> 
+Instead of: 
+```C#
+...
+string[] names = new string[3];
+name[0] = "tsotne";
+name[1] = "entost";
+name[2] = "Billy";
+return View("Index", names);
+```
+
+Cleaner syntax is:
+```C#
+return View("Index", new string[] { "tsotne", "entost", "billy" } );
+```
+This allows the collection to be defined inside a method call.<br/>
+
+### Index initializer
+Indexes but I think it's more specific for Key-Value pairs,
+this type of collections, have better way for initialization...
+<br/>
+old way:
+```C#
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using LanguageFeatures.Models;
+
+namespace LanguageFeatures.Controllers
+{
+	public class HomeController : Controller
+	{
+		public ViewResult Index()
+		{
+			Dictionary<string, Product> products =  \
+			new Dictionary<string, Product>
+			{
+				{"Kayak", new Product {Name = "Kayak", Price = 234M}},
+				{"LifeJacket', new LifeJacket {Name="LifeJacket", Price = 12M}}
+			};
+			return View("Index", products.Keys);
+		}	
+	}
+}
+```
+
+New better way, using index initializers:
+```C#
+...
+public ViewResult Index()
+{
+	Dictionary<string, Product> products = new Dictionary<string, Product>
+	{
+		["Kayak"] = new Product { Name = "Kayak", Price = 234M },
+		["Lifejacket"] = new Product { Name = "LifeJacket", Price = 123M}
+	};
+	
+	return View("Index", products.Keys);
+}
+```
+
+### Pattern matching
+I still think that they are giving the language features some weird names
+but what can you do... When I heard about pattern matching, first thing that came in my 
+mind was the regular-expressions. But it's actually about type-checking...
+<br/> 
+
+in Controllers/HomeController.cs:
+```C#
+public ViewResult Index()
+{
+	//object is base of all classes ??
+	//therefore it can reference to any object
+	object[] data = new object[] { "123", "abc", 231.2, 123};
+	decimal total = 0;
+	
+	for(int i = 0; i < data.Length; i++)
+	{
+		//I don't know how to feel about this syntax
+		// 'is' type-checks data[i] and if true then d = data[i]
+		if(data[i] is decimal d)
+		{
+			total += d;
+		}
+	}
+
+	return View("Index" , new string[] { $"Total: {total:C2}" });
+}
+...
+			
+```
+
+This is better mixed with <b>case</b> statement:
+```C#
+...
+public ViewIndex Index()
+{
+	object[] data = new object[] { "help", "me", 231, 123.21};
+	decimal total = 0;	
+	for(int i = 0; i < data.Length; i++)
+	{
+		switch(data[i])
+		{
+			//type-checks for decimal	
+			case decimal decimalValue:
+				total += decimalValue;
+				break;
+			//being more selective using when
+			//I don't know where-else can when be added
+			case int intValue when intValue > 50:
+				total += intValue;
+				break;
+		}
+	}
+}
+```
+
+# Extention Methods
+
+This is some real unusual stuff if you ask me...
+<br/> 
+In C# classes, with member methods can also use Extension methods...
+<br/>
+We can define a method outside the class which will act as if its the part of that class...
+<br/>
+But it can only act on the accessible/public members of the class.
+<br/>
+Basically it's an additional logic which can be accessed using ObjectName.Method syntax.
+<br/>
+
+Little wrapper class for Product, in Modles/ShoppingCart.cs:
+```C#
+using System.Collections.Generic;
+
+namespace LanguageFeatures.Models
+{
+	public class ShoppingCart
+	{
+		// When returned, we will be to access only
+		// GetEnumerator() method of IEnumerable
+		public IEnumerable<Product> Products { get; set; }
+	}
+}
+```
+
+Lets define <b>Extension Method</b> in Models/ExtensionMethods.cs:
+```C#
+namespace LanguageFeaturs.Models
+{
+	pubic static class ExtensionMethods
+	{
+		//I guess extension methods must be static
+		//In this case that's for sure because it's in the static class
+		public static decimal TotalPrices(this ShoppingCart cartParam)
+		{
+			decimal total = 0;
+			foreach(Product prod in cartParam.Products)
+			{
+				total += prod?.Price ?? 0;
+		        }		
+			return total;
+		}
+	}
+}
+```
+
+'this' keyword in the list of parameters tells C# that this method will be used
+as an extension method, class(type) after that means the extensino method will be used on
+that of class(type) and the 'cartParam' can be used inside the body as parameter...
+<br/>
+
+Now because I defined this extension method for 'ShoppingCart' type, it will be
+accessable only that type of objects will be able to access it. We can implement
+IEnumerable class in the ShoppingCart class, make our class a child of an IEnumerable,
+and then define this extension method for IEnumerable. Therefore because all collections
+are children of IEnumerable we'll be able to use this extension method on any kind of 
+collections of the type 'Product'...
+<br/>
+
+### !!!!
+in Models/ShoppingCart.cs:
+```C#
+using System.Collections.Generic;
+
+namespace LanguageFeatures.Models
+{
+	public class ShoppingCart : IEnumerable<Product>
+	{
+		public IEnumerable<Product> products {get; set;}
+		
+		//overriding? GetEnumerator() and
+		//referencing it to the products Enumerator
+		//which is what we need in this logic
+		//but can it be overriden without the keyword override?
+		public IEnumerator<Product> GetEnumerator()
+		{
+			return products.GetEnumerator();
+		} 
+
+		//I don't know what this does...????
+		//its private, but IEnumerable.GetEnumerator() where
+		//is it taking us???
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			//is this the GetEnumerator() that I've overriden?
+			return GetEnumerator();
+		} 
+	}
+}
+	
+```
+
+in updated Models/ExtensionMethods.cs:
+```C#
+namespace LanguageFeatures.Models
+{
+	public static ExtenshionMethods
+	{
+		public static decimal TotalPrice(this IEnumerable<Product> products)
+		{
+			decimal total = 0;
+			foreach(Product prod in products)
+			{
+				total += prod?.Price ?? 0;
+			}
+		return total;
+	}
+}	
+```
+
+now in Controllers/HomeController.cs:
+```C#
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using LanguageFeatures.Models;
+
+namespace LanguageFeatures.Controllers
+{
+	public HomeController : Contoller
+	{
+		ShoppingCart cart = new ShoppingCart { Products = Product.GetProduct(); };
+		Product[] productArray = {
+			new Product { Name = "Kayak", Price = 234M},
+			new Product { Name = "LifeJacket", Price = 32M}
+		};
+	decimal cartTotal = cart.TotalPrices();
+	decimal arrayTotal = producetArray.TotalPrices();
+
+	return View("Index", new string[] {
+			$"Cart Total: {cartTotal:C2}",
+			$"Array Total: {arrayTotal:C2}" });
+	}
+}
+					
+```
