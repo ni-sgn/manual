@@ -1569,3 +1569,193 @@ namespace LanguageFeatures.Controllers
 }
 					
 ```
+
+### Creating Filter Functions with Extension methods
+in Models/ExtensionMethods.cs:
+
+```C#
+...
+
+public static IEnumerable<Product> FilterByPrice( this IEnumerable<Product> productEnum, decimal minimumPrice)
+{
+	foreach(Product prod in productEnum)
+	{
+		if((prod?.Price ?? 0) >= minimumPrice)
+		{
+			//return usually breaks the foreach loop
+			//but yield breaks for the current object
+			//and then continues execution for the next one?
+			//to return each element one at a time
+			yield return prod;
+		}
+	}
+}
+...
+```
+
+in Controllers/HomeController.cs:
+
+```C#
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using LanguageFeatures.Models;
+
+namespace LanguageFeatures.Controllers
+{
+	public class HomeController : Controller
+	{
+		public ViewResult Index()
+		{
+			Product[] productArray =	
+			{
+				new Product {Name="Kaya", Price=23M},
+				new Product {Name="Life", Price=12M},
+				new Product {Name="Ball", Price=19M},
+				new Product {Name="Flag", Price=21M}
+			};
+			
+		decimal arrayTotal = productArray.FilterByPrice(20).TotalPrices();
+		return View("Index", new string[] { $"Array Total: {arrayTotal:C2}" });
+		}
+	}
+}
+```
+What happened here is very important... 
+<br/>
+We created an array of objects type Product,
+<br/>
+which is a collection therefore inherits from IEnumerable,
+because collections are enumerables...
+<br/>
+Because we defined Selector Extension Method for IEnumerable,
+it will work for any collection, and because that method returns
+another IEnumerable and on this enumerable we can use another
+extension method which extends IEnumerable but returns decimal...
+<br/>
+In the end reference it in with ```C# decimal arrayTotal ...```
+<br/>
+
+
+##  Lambda Functions
+Selectors,Filters, can be many different kinds. 
+<br/>
+But the core of them is that they have predicates as Logic.
+<br/>
+Predicate is a statement/expression which can be either true or false.
+<br/>
+It would be goold if we could pass this predicate logic to the filter
+or select method and it could use that logic.
+<br/>
+It is actually possible to pass the logic using the lambda functions... 
+
+in Models/ExtendedMethods.cs:
+```C#
+...
+//Func is probably base object for all 'referenceable logic'
+public static IEnumerable<Product> Filter(this IEnumerable<Product> productEnum, Func<Product, bool> selector)
+{
+	foreach(Product prod in productEnum)
+	{
+		if(selector(prod))
+		{
+			yield return prod;
+		}
+	}
+}
+..
+```
+in Controllers/HomeController.cs:
+```C#
+using System;
+...
+
+bool FilterByPrice(Product p)
+{
+	return (p?.Price ?? 0) >= 20;
+}
+
+public ViewResult Index()
+{
+	Product[] productArray =
+	{ 
+	{...},
+	{...}
+	};
+
+	//no 'new' for delegate?
+	//this is kinda weird
+	//delegate is like a funcion pointer
+	//if I remember correclty
+	//which is basically a pointer to some logic
+	//isn't the func the same thing??
+	//more research needed...
+	Func<Product, bool> nameFilter = delegate (Product prod){	
+		return prod?.Name?[0] == 'S'; 
+	};
+
+	decimal priceFilterTotal = productArray 
+		.Filter(FilterByPrice)
+		.TotalPrices();
+
+	decimal nameFilterTotal = productArray
+		.Filter(nameFilter)
+		.TotalPrices();
+
+	return View("Index", new string[] {
+		$"Price Total: {priceFilterTotal:C2}",
+		$"Name total:  {nameFilterTotal:C2} });
+}	
+	
+
+...
+```
+
+These are both <b>BAD</b> ways to pass the Block of Logic...
+<br/>
+
+FilterByPrice(...) method doesn't really belong there and it clutters	
+up the HomeController class definition...
+<br/>
+
+Creating Func<Product, bool> and assigning it to the delegate is weird
+syntax wise and I don't really understand what's happening there,
+it also looks bad...
+<br/>
+
+Lambda functions are more elegant and overall better way to define
+methods, inline methods and are more expressive...
+
+instead of previous code we will only have:
+```C#
+...
+public ViewResult Index()
+{
+	Product[] productArray =  { new Product {...}, ... };
+
+
+	//types of lambda functions are inferred automatically
+	// '=>' reads as 'goes to'
+	//links a parameter to the result expression
+	//Product parameter p goes to a bool result !!!
+	decimal priceFilter = productArray
+		.Filter(p => (p?.Price ?? 0 ) => 20)
+		.TotalPrice();
+
+	decimal nameFilter = productArray
+		.Filter((p) => (p?.Name[0] == 'S')) 
+		.TotalPrice();
+
+	return View("Index", new string[] { ... };
+}
+...
+	
+```
+
+important thing, multiple line lambda expression:
+```C#
+(prod, count) => {
+	//multiple line logic
+	return result;
+}
+```
+
