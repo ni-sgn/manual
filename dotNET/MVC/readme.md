@@ -1759,3 +1759,152 @@ important thing, multiple line lambda expression:
 }
 ```
 
+## Smalltalk about Delegates
+Delegates are type-safe pointers of any methods...
+<br/>
+Delegates are of so called <i>reference types</i> in C#.
+<br/>
+Which mean that they hold references to objects...(to methods in this
+case)...
+<br/>
+Delegates are mainly used in implementing call-back methods and events.
+<br/>
+
+Delegates are type-safe because while declearing them the definition
+of the return type and parameter number and type is necessery...
+Therefore the methods type and parameters are checked to fit the 
+format of the delegate...
+<br/>
+
+<i>Func<T, TResult></i> - a delegate that points to a method which returns a value.
+<br/>
+<i>Action</i> - a delegate that points to a method which return no value.
+<br/>
+
+Lambda Expression in C# LINQ's Select:
+```C#
+using System.Linq;
+...
+
+return View("Index", Product.GetProducts().Select(p => p?.Name));
+...
+```
+
+Action Method expressed as Lambda Expression:
+```C#
+public ViewResult Index() => 
+	View("Index", Product.GetProducts().Select(p => p?.Name));	
+```
+
+
+Lambda Expression defining Properties:
+```C#
+public class Product
+{
+...
+public string Name {get;set;}
+public bool NameBeginsWithS => Name?[0] == 'S';
+...
+```
+
+## Type Inference and Anonymous Types
+
+C# is a strictly-typed, compiled language, but it has some features that
+look like something that belongs to dynamic-typed language
+<br/>
+
+With type inference we can ask compiler to infere the types for some
+objects... 
+```C#
+public ViewResult Index()
+{
+	var names = new [] {"Jacob", "Moses", "Abraham"};
+	return View("Index", names);
+}
+```
+This combined with object initializers we can construct something called
+anonymous types...
+<br/>
+Anonymous types, but anonymous for whom?? For us?? 
+<br/>
+Trick here is that we must initialize same properties in every object
+so that compiler is able to find the right class therefore the right
+type... But if we know the properties of the class, why shouldn't
+know the identifier for that class itself???
+<br/>
+Also, 'var' doesn't dynamically enlarge the variable table, it is 
+still strongly typed but during compilation by compiler itself...
+Compiler probably goes through all the classes, therefore it has
+a table of classes, and tries to match the properties that are being
+declared to some class in the table... 
+
+Anonymous types in Controllers/HomeController.cs:
+```C#
+...
+public ViewResult Index()
+{
+	var products = new []
+	{
+		new { Name="kayak", Price=234M},
+		new { Name="Balls", Price=21M}
+	};
+
+	return View(products.Select(p => p.Name));	
+}
+```
+
+But then the book says that compiler <b>Generates</b> the class for the
+two anonymously typed objects that have the same property names.
+<br/>
+So which is it then: <b>Mathching</b> or <b>Generating</b>?
+<br/>
+
+I thinks it generates a class that wraps those properties,
+and assigns them as their type.
+Because if this is compiled:
+```C#
+...
+return View(products.Select(p => p.GetType().Name));
+...
+```
+
+When printed output is:
+```C#
+<>f__AnonymousType0`2
+<>f__AnonymousType0`2
+```
+
+Which means that the class with the name <b><>f__AnonymousType0`2</b>
+has been generated with those two Name and Price properties...
+<br/>
+Which is kind of weird...
+<br/>
+
+# Asynchronous Methods
+
+"Synchronously means using the same clock, so when two instructions
+are synchronous they use the same clock and must happen one after another
+. Asynchronous means not using the same clock, so the instructions are
+not concerned with being in step with each other."
+
+Asynchronous execution doesn't need multiple threads in the processor,
+it...
+<br/>
+Like the CPU time is split between different processes, so is the
+process divided into multiple tasks. These tasks are blocks of 
+code(which needs more research), and these tasks can happen 
+synchronously or asynchronously...
+
+In reality this to work asynchronous task must be 2 tasks at least,
+<br/>
+First, synchronous to the caller, which will initiazte the 
+asynchronous task and where the asynchronous task will return after
+complition
+<br/>
+Second, the asynchronous task itself...
+<br/>
+Also, the second task must somehow tell the caller task that
+it has been completed... Either this happens with interrupt or
+by first task checking if the second has completed or not...
+<br/>
+
