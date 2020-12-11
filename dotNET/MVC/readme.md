@@ -1906,5 +1906,176 @@ Second, the asynchronous task itself...
 Also, the second task must somehow tell the caller task that
 it has been completed... Either this happens with interrupt or
 by first task checking if the second has completed or not...
+Turns out this mechanis is implemented in many different ways..
+<br/>
+https://en.wikipedia.org/wiki/Asynchronous_I/O
+
+https://en.wikipedia.org/wiki/Thread_pool
+
+https://en.wikipedia.org/wiki/Futures_and_promises
+
+https://en.wikipedia.org/wiki/Thread_(computing)
+
+https://en.wikipedia.org/wiki/Computer_multitasking
+
+<br/>
+This is how I understand asynchronousity in C#.
+<br/>
+methods that are 'async' are fully asynchronous, which means what?
+maybe they are executed on another thread, maybe on the same thread but
+have their own timer and are scheduled 'stand-alonedly' from the main
+process. Which I suppose means that the scheduling goes on different 
+levels, one on process level and then inside processes thread or task
+level. 
 <br/>
 
+Lets write two methods that are not depended on each other:
+```C#
+class Program
+{
+	public static void Main(string[] args)
+	{
+		Method_1();
+		Method_2();
+		Console.ReadKey();
+	}
+
+	public static async Task Method_1()
+	{
+		await Task.Run( () => 
+			{
+				for (int i = 0; i<100; i++)
+				{
+					Console.WriteLine(" Method_1");
+				}
+			});
+	}
+
+	public static void Method_2()
+	{
+		for (int i = 0; i < 30; i++)
+		{
+			Console.WriteLine(" Method_2");
+		}
+	}
+}
+		
+	
+```
+Ouput will be something like this:
+```C#
+ Method_1
+ Method_1
+ Method_2
+ Method_2
+ Method_2
+ Method_1
+ ...
+```
+Because Method_1 is a different Task from the 'main Task', it becomes
+something like two different processes inside a process.
+<br/>
+
+Because both of these tasks are outputting in the same standard output,
+they have to somehow share it, and plus because both of these funcs
+are  void, side-effect funcs, they return Task type, which is a future
+in C# without a specifig type on its own... 
+
+<br/>
+'await' stops the function's execution on the line and  
+waits for that action to be finished, but it stops couple of times
+before that action can be fully finished, because its time on CPU is
+over, then it has to return something to the 'main Task', but 
+because the function isn't fully executed it returns Task-type,
+which basically is a 'future', which means that its type isn't
+known yet, but it will be known in the future and handle it as that... 
+Function that assigns the final value to the 'future' is called 
+a 'Promise'. I think these are used in lazy evaluations too, 
+because functions values are not calculated right away(during 
+assignment), but when its value is actually needed, therefore
+during assignment the type must be given to these kind of objects and
+its 'future'.
+<br/>
+When the 'await' action is fully executed during on of the executions
+of the Task on the CPU, it then assings a value to the 'Task', 
+and continues executing what's left in the function... 
+<br/>
+ 
+If we want to use the returned value of asynchronous value
+we have to do something like this:
+```C#
+class Program
+{
+	public static void Main(string[] args)
+	{
+		CallAsyncMethods();
+	}
+
+
+	public static async Task CallAsyncMethods()
+	{
+		Task<int> task = Method_1();
+		Method_2();
+		//This must be fully finished 
+		//before going to the next line
+		int count = await task;
+		Method_3(count);
+	}
+
+	public static async Task<int> Method_1()
+	{
+		await Task.Run(() =>
+		{
+			int count = 0;
+			for(int i = 0; i < 100; i++)
+			{
+				Console.WriteLine(" Method_1");
+				count++;
+			}
+		});
+		return count;
+	}
+
+	public static void Method_2()
+	{
+		for(int i = 0; i < 25; i++)
+		{
+			Console.WriteLine(" Method_2");
+		}
+	}
+
+	public static voic Method_3(int count)
+	{
+		Console.WriteLine($"Count: {count}");	
+	}
+}
+```
+
+In order to create a Sequence between asynchronous methods or a 
+synchronous method and a asynchronous method, we have to wrapper
+asynchronous method( CallAsynchMethods() ), so that we can use
+await on those asynchronous methods and sort them out... 
+
+This topic is very interesting and useful, so defenitiley more research on this one!!!!!!!!!!!!!!!!
+
+# Getting Names
+This is just a better name for displaying info as names of propertis, stable 
+after changes and so on.. and so on...:
+```C#
+namespace LanguageFeatures.Controllers
+{
+	public class HomeController : Controller
+	{
+		public ViewResult Index()
+		{
+			Product[] products = new Product[]
+			{ 
+				new Product { Name = "Kayak", Price = 23M},
+				new Product { Name = "Ball",  Price = 21M}
+			};
+			return View(products.Select(p => 
+				$"{nameof(p.Name)}: {p.Name}, {nameof(p.Price)}: {p.Price}"));
+		}
+	}
+}
+```
