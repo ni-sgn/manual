@@ -1,0 +1,91 @@
+While Loop in assembly isn't that much different from 
+sub-procedures
+
+If we are putting WHILE in main() the procedure is then 
+divided into 3 sub-procedures
+
+1) Everything that happnes before WHILE ( main: )
+2) procedure that checks the condition of WHILE plus what's
+after the WHILE in main() ( .L2: )
+3) Body of the while  ( .L3: )
+
+The main difference between WHILE loop and full procedure 
+is that these sub-procedures are still operating in 
+main()'s STACK FRAME, they dont' generate their own...
+
+And instead of 'call' instruction, unconditional jump 'jmp'
+is used
+
+With jumps, this kind of control-flow is generated:
+
+main:
+	... 	; 	setting up the stack frame
+	jmp .L2 ;	jumping to the .L2
+
+.L3:
+	...	;	everything that goes on inside the loop body
+.L2:
+	mov var1(%ebp), %eax;		setting up for 'cmp'
+	cmp var2(%ebp), %eax;		comparing var2 to var1
+	jle .L3		    ;		conditional jump to .L3
+	...		    ;		everything else and cleaning up
+	ret		    ;		ending main()
+
+One thing that is not clear to me
+when .L3 does it's last instruction, it doesn't jump anywhere
+therefore it automatically goes to the .L2
+that would mean that binary for this assembly is generated 
+top-down almost exactly like in this file..???
+
+
+***ADDITIONAL***
+local variables in c are just offsets in the stack frame
+
+sometimes we just jump to an X amount of bits far away in stack
+
+subl $32, %esp
+
+and then fill it up with values
+
+mov %20, -28(%ebp)
+
+instead of pushl %20, and why is that ????
+especially when the 'push' is faster and also seems to 
+take only 1 cycle: https://stackoverflow.com/questions/4584089/what-is-the-function-of-the-push-pop-instructions-used-on-registers-in-x86-ass
+
+
+***More ADDITIONS***
+Quite interesting stuff going on in .L3
+fancy number theory and optimization
+which I don't quite understand
+
+Remmeber how often 'leal' is used just for
+the ARITHMETIC REASONS
+
+the expression in C is this
+cels = 5*(fahr - 32)/9
+
+in asm:
+
+movl -28(%ebp), %eax		;mov fahr into eax
+leal -32(%eax), %edx		;compute fahr - 32 put it in edx
+movl %edx, %eax			;mov (fahr-32) into eax
+sall $2, %eax			;eax = eax*4 (using left shift)
+leal (%eax, edx), %ecx		;ecx = edx + eax=(fahr-32)+4*(fahr-32) 
+movl $954437177, %edx		;(2^33 + 1)/ 9 into edx, more below
+movl %ecx, %eax			;mov ecx in eax, lost from here
+imull %edx			;eax = eax*edx???? more research
+sarl %edx			;shift right but how many times??
+movl %ecx, %eax			;
+sarl $31,  %eax			;shift eax left by 31 save it in eax
+subl %eax, %edx			;edx = edx - eax
+movl    %edx, %eax		;eax = edx
+movl    %eax, -12(%ebp)		;cels = %eax
+
+where is this $954437177 coming from? is it a compile time calculation?
+or just a number that is used very frequently, number theory thing???
+I don't understand next lines because how imull and sarl work aren't
+clear to me... this is fun, takes more research though....
+
+
+

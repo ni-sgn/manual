@@ -1,0 +1,124 @@
+What is a symbolic constant?
+
+Source code is written in certain set of characters, wether it
+is utf or ascii, these characters can't be changed, but we can
+define other set of characters that then will be substituted 
+with other set of characters.
+These are called 'symbolic constants'.
+
+To achieve this in C, one should use something called
+preprocessor but before we talk about it, we have to take
+a detour.
+
+What is a programming language?
+I don't really know at this point. But I have some
+idea about what it is not.
+
+Probably, on the lowest level programming language is 
+just a formal language with its syntax and grammar rules.
+well-defined. 
+But what does that have to do with computers?
+On this level, nothing... At least in my mind...
+We can write expressions in this language on the paper
+and check the syntax manually...
+
+But, we want to use this formal, well-defined language
+as a tool to communicate with machines.
+Then things got complicated for me.
+Implementation of a language on a machine is a complex task...
+That's for sure...
+
+"Machines only understand 1s and 0s" - And the confusion is born.
+What is this supposed to mean? Where are this 1s and 0s coming from?
+My answer to that is circuits and trickery. plus the math of 
+computation and logic..
+Humans just use the properties of natural order to get the results they
+wish for... We also have a name for that, it's called Engineering.
+Electrical Engineering in this case is what comes up with tricky circuits.
+This circuits have input and when charge with certaing voltage approaches. Certain
+pathways are activated, like valves being open, which leads to certain desired output.
+Behind this there's theory, which says that with certain, small amount of functions
+we can describe any computable function.
+Therefore with sequences and compositions of these 'instructions' we have an ability 
+to describe anything computable.
+
+Therefore the CPU accepts certain inputs and rejects others, which means that we
+already have a language. This language is perfect for computers but not so for humans.
+Translating it manually is very time consuming. We need a middle ground, such that
+it will be easy for humans to understand and also easy to translate it to a machine language.
+
+We don't want to translate this higher level language into the machine language. Computer must be
+able to do it.  
+But again how is it implemented?
+There must be a program which takes the 'higher language' as an input and generates
+'machine language' as an output. 
+I think this is also a fancy computational theory. Probably simulating 
+Deterministic Finite Automata, this 'higher language' can be parsed, syntactically checked
+and accepted, then mapped to 'machine language' instructions.
+
+Humans are using characters or letters to construct words, sentences and ideas.
+Computers must have a way to represent a character.
+For that, sequences of 1s and 0s, which computer understands, are mapped to characters.
+This mapping can be of many kinds, therefore standard is needed. That's UTF-8 and ASCII.
+That's how a machine understands letters...
+
+When there are codes for letters, and a thoeritical construct of a formal language,
+what's left is a program, algorithm, that takes the  'high level language' as an input 
+and translates it to the 'machine language' as an output.
+This program must be written and fed to the machine as 'machine language' at first.
+Now it is possible to feed that program with a sequance of letters and it will either
+accept it or reject.
+
+This program is a compiler, or maybe interpreter.
+But it's not.
+Today, there is not one program that translates
+hight level language into a machine language.
+Compilation is a composition of many different programs.
+one program takes a source file as an input, generates an
+output, then that becomes an input of a next program and so on...
+But the end result is always a machine language...
+
+The programs that take part in compilation are different
+for different languages.
+Not only that but they might be different for the 
+same languages as well...
+which means that same expression with
+different compilators might result in 
+different machine codes.
+Therefore we also need the standartization of
+the implementation of languages, at least on some level.
+
+As my understanding suggests, the actual formal language 
+isn't concerned about hardware at all...
+it's complitely unaware of input/output,
+what type of memory or cpu there is...
+Translator should worry about that, not the language.
+Current working environment must provide a language
+with tools and functions which will make the hardware
+accessable from the language. These are hardware
+and OS dependant. I don't really understand how these tools are
+provided to it.
+
+
+Now, we are getting closer to our original concern...
+What the language isn't also concerned is how it is the 
+part of a file, and how these files are merged, or how
+different files or sections of code are needed for different 
+architectures.
+And humans don't want to repeat the same thing for every
+program and write everything in single file which will become
+enormous very soon.
+To manage that, we need certain type of directives,
+which will be given using a 'meta' language.
+These directives are able to modify the source code itself,
+and set some states for a translator.
+
+Basically manipulating the source code with code and
+setting states for a compiler. 
+But because this directives are some formal language too,
+they need their translator.
+In case of C this program is C preprocessor.
+
+Before C source goes in the C translator, it goes 
+in the C preprocessor which will prepare C source
+and its translator and then translation happens smoothly.

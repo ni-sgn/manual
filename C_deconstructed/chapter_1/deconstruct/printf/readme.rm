@@ -1,0 +1,35 @@
+Looks like 'String constants' are put into the .rodata section?
+I still don't quit understand how these section affect the end program.
+I guess they are accessed non-relatively when pushing them 
+into the stack as a passing argument...
+
+
+Seems like lables are pinning some places in the
+ executable as a metadata , they are saving the addresses so:
+
+.section	.rodata
+.LC0:		.string "Hello World"
+
+.LC0 represents the address of the string constant...
+
+leal .LC0@GOTOFF(%ebx), %eax
+push %eax
+call printf@PLT 
+
+But still, this isn't absolute addressing
+it's addressing relatively to the %ebx
+pushing the address into the %eax and then calling printf
+I don't know what @GOTOFF or @PLT mean... needs some research
+
+also, this is quite unclear too
+before pushing the stack frame pointer into the stack
+
+leal 4(%esp), %ecx  
+andl $-16, %esp
+pushl -4(%ecx)
+
+it does thies weird thing...????
+
+also... it's quite interesting that when I try to printf one character
+it replaces with call to putchar@PLT on its own....
+

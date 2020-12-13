@@ -1,0 +1,14 @@
+FOR loop is generalized, more compact syntax 
+than WHILE loop
+
+in assembly, they are implemented in
+exactly the same way
+
+main: jump to .L2: checks condition jump to .L3
+keeps repeating according to the condition
+
+for(expr1; expr2; expr3){}
+
+expr1 stays in the end of main:
+expr2 is turned into condition check in .L2:
+expr3 is added in the end of .L3: 

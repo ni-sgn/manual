@@ -1,0 +1,64 @@
+ALU (arithmetic logical unit) is only capable of doing operations
+on integers
+
+Therefore there is an addition, which is integrated in newer 
+processors called FPU (floating-point unit) which does
+calculations on fractional parts.
+
+FPU has an array of eight registers
+st(0) - st(7)
+pushing and popping items changes 
+top index, which is looking at the top of a stack
+
+st(0), or just st is a top of a stack
+
+numbers can not be pushed from ALU registers to FPU registers(stack)
+values are pushed from memory and popped into the memory
+
+FP numbers are either 32-bit (floats in C)
+or 65-bit (double in C)
+However, FPU stack registers are all 80 bits wide
+to reduce round-off errors
+
+Usually result of computations are returned into st(0)
+
+
+Link for more instructions
+https://en.wikibooks.org/wiki/X86_Assembly/Floating_Point
+
+Some instructions:
+
+fld: load floating-point value
+this loads on top of a stack
+but what does the store do?
+(basically PUSH for FPU)
+
+fst, fstp: store floating-point value
+oh... I'm stupid... 
+It stores a value from stack 
+into the memory (basically POP for FPU)
+
+fucomip: compare floating point values
+fucomip %st(1), %st
+
+fsubrp %st, %st(1)
+probably a substraction st(1)-st ->st(1)
+
+fmulp %st, %st(1)
+probably a multiplication st(1)*st->st(1)
+
+fadds -16(%ebp)
+addition but I don't know where the other operand is stored
+
+**ADDITIONAL**
+in rodata section there are weird things defined like
+
+.LC1:
+	.long 1133903872
+	.align 4
+which are then loaded into the FPU stack, don't really 
+know what that accomplishes yet...
+
+***MORE MORE MORE***
+I don't uderstand float manipulations
+needs more research
